@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberMaks's Knowledge Base</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: #000;
+            padding: 2rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .header-content {
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00b4d8;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: #111;
+            padding: 1rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #00b4d8;
+            color: #000;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 4rem 0;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: #00b4d8;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #333;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: #111;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #00b4d8;
+        }
+
+        .card h3 {
+            color: #00b4d8;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: #999;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .card a {
+            color: #00b4d8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid #333;
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">CyberMaks's KB</div>
+                <div class="subtitle">Cybersecurity Knowledge Base</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="#vulnerabilities">Vulnerabilities</a></li>
+                <li><a href="#writeups">CTF Writeups</a></li>
+                <li><a href="#tools">Tools</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Vulnerabilities Section -->
+            <section class="section" id="vulnerabilities">
+                <h2 class="section-title">Vulnerabilities</h2>
+                <div class="cards">
+                    <div class="card">
+                        <h3>SQL Injection</h3>
+                        <p>Understanding and exploiting SQL injection vulnerabilities in web applications.</p>
+                        <a href="vulnerabilities/sql-injection.html">Read Article →</a>
+                    </div>
+                    <div class="card">
+                        <h3>XSS Attacks</h3>
+                        <p>Cross-site scripting vulnerabilities and exploitation techniques.</p>
+                        <a href="vulnerabilities/xss.html">Read Article →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTF Writeups Section -->
+            <section class="section" id="writeups">
+                <h2 class="section-title">CTF Writeups</h2>
+                <div class="cards">
+                    <div class="card">
+                        <h3>CTF Challenge 1</h3>
+                        <p>Walkthrough of a beginner-level CTF challenge focusing on web vulnerabilities.</p>
+                        <a href="writeups/ctf1.html">Read Writeup →</a>
+                    </div>
+                    <div class="card">
+                        <h3>CTF Challenge 2</h3>
+                        <p>Advanced CTF challenge involving binary exploitation and reverse engineering.</p>
+                        <a href="writeups/ctf2.html">Read Writeup →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools Section -->
+            <section class="section" id="tools">
+                <h2 class="section-title">Tools</h2>
+                <div class="cards">
+                    <div class="card">
+                        <h3>Nmap</h3>
+                        <p>Network discovery and security auditing tool. Complete guide to port scanning and network mapping.</p>
+                        <a href="tools/nmap.html">Learn More →</a>
+                    </div>
+                    <div class="card">
+                        <h3>FFuF</h3>
+                        <p>Fast web fuzzer written in Go. Directory and file fuzzing for web application testing.</p>
+                        <a href="tools/ffuf.html">Learn More →</a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-text">
+                © 2024 CyberMaks's Knowledge Base
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
