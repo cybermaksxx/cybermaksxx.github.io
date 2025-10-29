@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nmap Complete Guide - CyberMaks's KB</title>
+    <title>Complete Nmap Guide - CyberMaks's KB</title>
     <style>
         * {
             margin: 0;
@@ -301,7 +301,7 @@
             padding: 0.8rem 1.2rem;
             border-radius: 8px;
             border: 1px solid #00b4d8;
-            margin: 0.5rem 0;
+            margin: 1rem 0;
             transition: all 0.3s ease;
         }
 
@@ -437,6 +437,23 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #0096c7;
         }
+
+        .technical-details {
+            background: #0a0a0a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin: 1.5rem 0;
+        }
+
+        .packet-flow {
+            background: #1a1a2e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -475,67 +492,79 @@
                 </div>
 
                 <h2>Introduction to Nmap</h2>
-                <p>One of the most underestimated phases in penetration testing is reconnaissance and enumeration. Many newcomers, often due to inexperience, undervalue its critical importance, rushing toward exploitation without a solid foundation. A thorough enumeration phase is what separates a successful, targeted attack from a noisy, scattergun approach.</p>
+                <p>Nmap (Network Mapper) is the industry standard for network discovery and security auditing. Created by Gordon "Fyodor" Lyon in 1997, it has evolved from a simple port scanner to a comprehensive network reconnaissance tool used by security professionals worldwide.</p>
                 
-                <p>At the heart of this initial phase lies Nmap (Network Mapper), the quintessential tool for network discovery and security auditing. Its story began in 1997 when a young hacker named Gordon "Fyodor" Lyon created it to map his own network and understand the traffic flowing through it. He published it in an article for Phrack Magazine, and what started as a simple port scanner evolved into a community-driven, open-source project that defined the standard for network exploration.</p>
+                <p>What makes Nmap indispensable for ethical hackers is its ability to provide detailed information about:</p>
+                <ul>
+                    <li>Live hosts on a network</li>
+                    <li>Open ports and services</li>
+                    <li>Service versions and operating systems</li>
+                    <li>Network vulnerabilities and misconfigurations</li>
+                </ul>
 
                 <div class="tip">
-                    <strong>💡 Professional Insight:</strong> While modern alternatives like RustScan have emerged, Nmap remains the industry standard due to its extensive capabilities, scripting engine, and proven reliability in real-world scenarios.
+                    <strong>💡 Professional Insight:</strong> Nmap's true power lies in its scripting engine (NSE) which allows for automated vulnerability detection, advanced service enumeration, and network exploitation.
                 </div>
             </section>
 
             <!-- Installation -->
             <section>
                 <h2>Installation</h2>
-                <p>First things first... If you are running Kali or Parrot Linux, you have this tool installed by default. However, if you don't, here's how you can install it:</p>
+                <p>Nmap comes pre-installed on most penetration testing distributions. For other systems:</p>
 
                 <div class="command-box">
+                    <strong># Kali Linux (Pre-installed)</strong><br>
+                    # Already available<br><br>
+                    
                     <strong># Ubuntu/Debian</strong><br>
                     sudo apt update && sudo apt install nmap<br><br>
                     
                     <strong># CentOS/RHEL</strong><br>
                     sudo yum install nmap<br><br>
-                    
+
                     <strong># Windows</strong><br>
-                    # Download from https://nmap.org/download.html<br><br>
+                    # Download installer from https://nmap.org/download.html<br><br>
 
                     <strong># macOS</strong><br>
                     brew install nmap
                 </div>
 
                 <div class="note">
-                    <strong>📝 Note:</strong> For advanced scanning techniques like SYN scans, you'll need root privileges on Unix-based systems.
+                    <strong>📝 Note:</strong> Advanced scanning techniques like SYN scans require root/administrator privileges on most systems.
                 </div>
             </section>
 
             <!-- Basic Syntax -->
             <section>
-                <h2>Basic Syntax</h2>
-                <p>Every Nmap operation follows a consistent and logical structure that forms the foundation of network reconnaissance. Understanding this syntax is crucial for effective scanning.</p>
+                <h2>Basic Syntax & Structure</h2>
+                <p>Understanding Nmap's command structure is fundamental to effective network reconnaissance.</p>
                 
                 <div class="command-box">
-                    nmap [scan type] [options] [target]
+                    nmap [Scan Type] [Options] [Target Specification]
                 </div>
 
                 <div class="info-card">
-                    <h4>Syntax Components:</h4>
+                    <h4>Core Components:</h4>
                     <ul>
-                        <li><strong>nmap</strong> - The command that invokes the tool</li>
-                        <li><strong>[scan type]</strong> - Defines the scanning technique (e.g., -sS, -sT)</li>
-                        <li><strong>[options]</strong> - Customizes and enhances your scan</li>
-                        <li><strong>[target]</strong> - The objective (IP, range, or subnet)</li>
+                        <li><strong>Scan Type</strong> - Defines the scanning methodology (-sS, -sT, -sU, etc.)</li>
+                        <li><strong>Options</strong> - Modifies scan behavior (-A, -O, -sV, etc.)</li>
+                        <li><strong>Target</strong> - IP addresses, ranges, or hostnames to scan</li>
                     </ul>
                 </div>
 
-                <div class="tip">
-                    <strong>🚀 Pro Tip:</strong> When no scan type is specified and you have root privileges, Nmap automatically uses the TCP SYN Stealth Scan (-sS) - your default workhorse for efficient reconnaissance.
+                <div class="command-box">
+                    <strong># Basic examples</strong><br>
+                    nmap 192.168.1.1<br>
+                    nmap 192.168.1.0/24<br>
+                    nmap -sS -A -T4 target.com<br>
+                    nmap -iL targets.txt
                 </div>
             </section>
 
-            <!-- Scan Types -->
+            <!-- Comprehensive Scan Types -->
             <section>
-                <h2>Scan Types</h2>
-                <p>Nmap offers a diverse arsenal of scanning techniques, each designed for specific scenarios and objectives. Mastering these is essential for effective ethical hacking.</p>
+                <h2>Comprehensive Scan Types</h2>
+                <p>Nmap offers multiple scanning techniques, each with specific use cases and trade-offs.</p>
 
                 <!-- TCP Connect Scan -->
                 <div class="scan-section">
@@ -544,39 +573,61 @@
                         <h3 class="scan-title">TCP Connect Scan (-sT)</h3>
                     </div>
                     
-                    <p>The TCP Connect scan performs a complete three-way handshake with every target port, making it the most reliable but also the most detectable scanning method.</p>
+                    <p>The TCP Connect Scan is the most basic and reliable scanning method. It performs a complete TCP three-way handshake with each target port.</p>
 
                     <div class="command-box">
-                        nmap -sT [target]
+                        nmap -sT 192.168.1.1
                     </div>
 
                     <h4>How It Works</h4>
-                    <p>Nmap completes the full TCP handshake (SYN → SYN-ACK → ACK) for each port, then immediately closes the connection. This method uses the operating system's native connect() function.</p>
+                    <p>This scan uses the operating system's <code>connect()</code> system call to establish a full connection:</p>
+                    
+                    <div class="packet-flow">
+                        <strong>Open Port:</strong><br>
+                        Attacker: SYN →<br>
+                        Target: SYN-ACK ←<br>
+                        Attacker: ACK →<br>
+                        Attacker: RST → (close connection)<br><br>
+
+                        <strong>Closed Port:</strong><br>
+                        Attacker: SYN →<br>
+                        Target: RST ←
+                    </div>
+
+                    <div class="technical-details">
+                        <h4>Technical Details:</h4>
+                        <ul>
+                            <li>Uses system's TCP stack - no raw socket privileges needed</li>
+                            <li>Most accurate for determining actual service availability</li>
+                            <li>Creates full connections that appear in application logs</li>
+                            <li>Slower than SYN scans due to connection overhead</li>
+                        </ul>
+                    </div>
 
                     <div class="pros-cons">
                         <div class="pros">
                             <h4>✅ Advantages</h4>
                             <ul>
-                                <li>Maximum reliability and accuracy</li>
-                                <li>No root privileges required</li>
-                                <li>Clear, unambiguous results</li>
+                                <li>No special privileges required</li>
+                                <li>Highly reliable and accurate</li>
                                 <li>Works through most firewalls</li>
+                                <li>Easy to understand and troubleshoot</li>
                             </ul>
                         </div>
                         
                         <div class="cons">
                             <h4>❌ Disadvantages</h4>
                             <ul>
-                                <li>Loud and easily detected</li>
-                                <li>Slower than stealth methods</li>
-                                <li>Creates log entries on target</li>
-                                <li>Can be blocked by stateful firewalls</li>
+                                <li>Easily detected by intrusion detection systems</li>
+                                <li>Creates numerous log entries on target</li>
+                                <li>Slower than stealth scanning methods</li>
+                                <li>Can trigger rate limiting on services</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="resource-link">
-                        <a href="https://nmap.org/book/man-port-scanning-techniques.html" target="_blank">📚 Official Nmap Scanning Techniques Documentation</a>
+                        <a href="https://nmap.org/book/man-port-scanning-techniques.html" target="_blank">📚 Official TCP Connect Scan Documentation</a>
                     </div>
                 </div>
 
@@ -584,36 +635,57 @@
                 <div class="scan-section">
                     <div class="scan-header">
                         <div class="scan-icon">SYN</div>
-                        <h3 class="scan-title">SYN Scan (-sS) - The Stealth Workhorse</h3>
+                        <h3 class="scan-title">SYN Stealth Scan (-sS)</h3>
                     </div>
                     
-                    <p>The SYN scan, also known as "half-open" scanning, is the default and most popular scanning method when run with root privileges. It offers the perfect balance of speed, stealth, and reliability.</p>
+                    <p>The SYN scan, also known as "half-open scanning," is the default and preferred method for most security assessments due to its speed and stealth characteristics.</p>
 
                     <div class="command-box">
-                        sudo nmap -sS [target]
+                        sudo nmap -sS 192.168.1.1
                     </div>
 
                     <h4>Stealth Mechanics</h4>
-                    <p>Instead of completing the three-way handshake, SYN scans send a RST packet after receiving the SYN-ACK, preventing the connection from being fully established and reducing detection.</p>
+                    <p>SYN scans never complete the TCP handshake, making them less likely to be logged:</p>
+                    
+                    <div class="packet-flow">
+                        <strong>Open Port:</strong><br>
+                        Attacker: SYN →<br>
+                        Target: SYN-ACK ←<br>
+                        Attacker: RST → (instead of ACK)<br><br>
+
+                        <strong>Closed Port:</strong><br>
+                        Attacker: SYN →<br>
+                        Target: RST ←
+                    </div>
+
+                    <div class="technical-details">
+                        <h4>Technical Details:</h4>
+                        <ul>
+                            <li>Requires raw socket privileges (root/administrator)</li>
+                            <li>Bypasses many simple logging mechanisms</li>
+                            <li>Much faster than TCP Connect scans</li>
+                            <li>Default scan type when running with privileges</li>
+                        </ul>
+                    </div>
 
                     <div class="pros-cons">
                         <div class="pros">
                             <h4>✅ Advantages</h4>
                             <ul>
-                                <li>Fast and efficient</li>
-                                <li>Stealthy - avoids application logging</li>
-                                <li>Bypasses legacy IDS systems</li>
-                                <li>Industry standard for professionals</li>
+                                <li>Fast and efficient for large networks</li>
+                                <li>Stealthy - avoids many logging systems</li>
+                                <li>Less resource intensive on both ends</li>
+                                <li>Industry standard for security professionals</li>
                             </ul>
                         </div>
                         
                         <div class="cons">
                             <h4>❌ Disadvantages</h4>
                             <ul>
-                                <li>Requires root/administrator privileges</li>
-                                <li>Can crash unstable services</li>
-                                <li>Detected by modern security systems</li>
-                                <li>Some firewalls block SYN packets</li>
+                                <li>Requires elevated privileges</li>
+                                <li>Can be detected by modern IDS/IPS</li>
+                                <li>May crash unstable services</li>
+                                <li>Some firewalls specifically block SYN packets</li>
                             </ul>
                         </div>
                     </div>
@@ -630,28 +702,43 @@
                         <h3 class="scan-title">UDP Scan (-sU)</h3>
                     </div>
                     
-                    <p>UDP scanning is essential for discovering services that don't use TCP, but it's significantly slower and more challenging due to UDP's connectionless nature.</p>
+                    <p>UDP scanning is essential for discovering services that operate over connectionless protocols, though it presents significant challenges due to UDP's stateless nature.</p>
 
                     <div class="command-box">
-                        sudo nmap -sU [target]
+                        sudo nmap -sU 192.168.1.1
+                    </div>
+
+                    <h4>UDP Scanning Challenges</h4>
+                    <p>UDP's connectionless nature makes scanning fundamentally different from TCP:</p>
+                    
+                    <div class="packet-flow">
+                        <strong>Open Port:</strong><br>
+                        Attacker: UDP Packet →<br>
+                        Target: (No response or application response)<br><br>
+
+                        <strong>Closed Port:</strong><br>
+                        Attacker: UDP Packet →<br>
+                        Target: ICMP Port Unreachable ←
                     </div>
 
                     <h4>Critical UDP Services</h4>
                     <ul>
-                        <li><strong>DNS (53)</strong> - Domain Name System</li>
-                        <li><strong>SNMP (161)</strong> - Network Management</li>
-                        <li><strong>DHCP (67/68)</strong> - Dynamic Host Configuration</li>
-                        <li><strong>TFTP (69)</strong> - Trivial File Transfer</li>
+                        <li><strong>DNS (53)</strong> - Domain Name System - critical for network mapping</li>
+                        <li><strong>SNMP (161)</strong> - Simple Network Management Protocol - often reveals extensive network information</li>
+                        <li><strong>DHCP (67/68)</strong> - Dynamic Host Configuration Protocol</li>
+                        <li><strong>TFTP (69)</strong> - Trivial File Transfer Protocol</li>
+                        <li><strong>NTP (123)</strong> - Network Time Protocol</li>
                     </ul>
 
                     <div class="command-box">
-                        <strong># Efficient UDP scanning</strong><br>
-                        nmap -sU --top-ports 100 [target]<br>
-                        nmap -sU -p 53,161,162,69 [target]
+                        <strong># Efficient UDP scanning strategies</strong><br>
+                        nmap -sU --top-ports 100 192.168.1.1<br>
+                        nmap -sU -p 53,161,162,69,123 192.168.1.1<br>
+                        nmap -sU --min-rate 1000 192.168.1.1
                     </div>
 
                     <div class="warning">
-                        <strong>⚠️ Important:</strong> Full UDP scans can take hours or even days. Always use --top-ports or specify critical ports to scan efficiently.
+                        <strong>⚠️ Important:</strong> Full UDP scans (all 65,535 ports) can take days to complete. Always use --top-ports or specific port ranges for practical assessments.
                     </div>
 
                     <div class="resource-link">
@@ -659,44 +746,177 @@
                     </div>
                 </div>
 
-                <!-- Add more scan types following the same structure -->
+                <!-- ACK Scan -->
+                <div class="scan-section">
+                    <div class="scan-header">
+                        <div class="scan-icon">ACK</div>
+                        <h3 class="scan-title">ACK Scan (-sA)</h3>
+                    </div>
+                    
+                    <p>ACK scanning is used to map firewall rulesets and determine filtering policies rather than discover open ports.</p>
+
+                    <div class="command-box">
+                        sudo nmap -sA 192.168.1.1
+                    </div>
+
+                    <h4>Firewall Mapping</h4>
+                    <p>ACK scans help determine how firewalls handle established connections:</p>
+                    
+                    <div class="packet-flow">
+                        <strong>Unfiltered Port:</strong><br>
+                        Attacker: ACK →<br>
+                        Target: RST ←<br><br>
+
+                        <strong>Filtered Port:</strong><br>
+                        Attacker: ACK →<br>
+                        Target: (No response or ICMP error)
+                    </div>
+
+                    <div class="technical-details">
+                        <h4>Use Cases:</h4>
+                        <ul>
+                            <li>Determine stateful vs stateless firewall configurations</li>
+                            <li>Map firewall rule sets and filtering policies</li>
+                            <li>Identify ports that are filtered but might be open</li>
+                            <li>Bypass some stateless firewall rules</li>
+                        </ul>
+                    </div>
+
+                    <div class="resource-link">
+                        <a href="https://nmap.org/book/scan-methods-ack-scan.html" target="_blank">📚 ACK Scan Technical Details</a>
+                    </div>
+                </div>
+
+                <!-- Window, FIN, NULL, XMAS Scans -->
+                <div class="scan-section">
+                    <div class="scan-header">
+                        <div class="scan-icon">STL</div>
+                        <h3 class="scan-title">Stealth Scans: FIN, NULL, XMAS (-sF, -sN, -sX)</h3>
+                    </div>
+                    
+                    <p>These advanced scans manipulate TCP flags to bypass primitive firewall rules and intrusion detection systems.</p>
+
+                    <div class="command-box">
+                        <strong># FIN Scan</strong><br>
+                        sudo nmap -sF 192.168.1.1<br><br>
+
+                        <strong># NULL Scan</strong><br>
+                        sudo nmap -sN 192.168.1.1<br><br>
+
+                        <strong># XMAS Scan</strong><br>
+                        sudo nmap -sX 192.168.1.1
+                    </div>
+
+                    <h4>Stealth Scan Mechanics</h4>
+                    <ul>
+                        <li><strong>FIN Scan (-sF):</strong> Sends packets with only FIN flag set</li>
+                        <li><strong>NULL Scan (-sN):</strong> Sends packets with no flags set</li>
+                        <li><strong>XMAS Scan (-sX):</strong> Sends packets with FIN, PSH, and URG flags set</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Effectiveness:</strong> These scans primarily work against older UNIX systems and specific network devices. Modern Windows systems and updated Linux kernels generally don't respond as expected.
+                    </div>
+
+                    <div class="resource-link">
+                        <a href="https://nmap.org/book/scan-methods-other.htm" target="_blank">📚 Advanced Stealth Scan Documentation</a>
+                    </div>
+                </div>
+
+                <!-- IDLE Scan -->
+                <div class="scan-section">
+                    <div class="scan-header">
+                        <div class="scan-icon">IDLE</div>
+                        <h3 class="scan-title">IDLE Scan (-sI) - Ultimate Stealth</h3>
+                    </div>
+                    
+                    <p>The IDLE scan represents the pinnacle of stealth scanning, allowing you to scan targets without sending any packets from your real IP address.</p>
+
+                    <div class="command-box">
+                        sudo nmap -sI zombie_host target.com
+                    </div>
+
+                    <h4>Zombie Host Requirements</h4>
+                    <ul>
+                        <li>Predictable IP ID sequence (incremental)</li>
+                        <li>Light network traffic</li>
+                        <li>No firewall blocking spoofed packets</li>
+                    </ul>
+
+                    <h4>How IDLE Scanning Works</h4>
+                    <ol>
+                        <li>Probe zombie's current IP ID</li>
+                        <li>Spoof SYN packet to target from zombie's IP</li>
+                        <li>Probe zombie again to check IP ID increment</li>
+                        <li>Analyze sequence changes to determine port state</li>
+                    </ol>
+
+                    <div class="command-box">
+                        <strong># Find suitable zombie hosts</strong><br>
+                        nmap -p80 --script ipidseq 192.168.1.0/24<br><br>
+
+                        <strong># Perform IDLE scan</strong><br>
+                        nmap -sI 192.168.1.50 192.168.1.100
+                    </div>
+
+                    <div class="resource-link">
+                        <a href="https://nmap.org/book/idlescan.html" target="_blank">📚 Complete IDLE Scan Guide</a>
+                    </div>
+                </div>
             </section>
 
-            <!-- Firewall Evasion -->
+            <!-- Advanced Firewall Evasion -->
             <section>
-                <h2>Firewall Evasion Techniques</h2>
-                <p>Modern networks are protected by various firewall technologies. Understanding how to bypass them is crucial for comprehensive security assessment.</p>
+                <h2>Advanced Firewall Evasion Techniques</h2>
+                <p>Modern networks employ sophisticated filtering mechanisms. These techniques help bypass common security controls.</p>
 
                 <div class="firewall-section">
-                    <h3 class="firewall-header">Advanced Evasion Methods</h3>
+                    <h3 class="firewall-header">Comprehensive Evasion Methods</h3>
 
-                    <h4>Packet Fragmentation (-f)</h4>
+                    <h4>Packet Fragmentation (-f, --mtu)</h4>
                     <div class="command-box">
-                        nmap -f [target]
+                        nmap -f 192.168.1.1<br>
+                        nmap --mtu 24 192.168.1.1
                     </div>
-                    <p>Breaks packets into smaller fragments to bypass simple firewall rules and IDS systems.</p>
+                    <p><strong>How it works:</strong> Splits TCP headers across multiple packets to evade simple packet inspection rules.</p>
 
                     <h4>Decoy Scanning (-D)</h4>
                     <div class="command-box">
-                        nmap -D decoy1,decoy2,decoy3,ME [target]
+                        nmap -D decoy1,decoy2,decoy3,ME 192.168.1.1<br>
+                        nmap -D RND:10 192.168.1.1
                     </div>
-                    <p>Uses decoy IP addresses to hide your real source IP in log files.</p>
+                    <p><strong>How it works:</strong> Uses spoofed source addresses to hide your real IP in log files.</p>
 
-                    <h4>Source Port Manipulation</h4>
+                    <h4>Source Port Manipulation (--source-port, -g)</h4>
                     <div class="command-box">
-                        nmap --source-port 53 [target]<br>
-                        nmap -g 80 [target]
+                        nmap --source-port 53 192.168.1.1<br>
+                        nmap -g 80 192.168.1.1
                     </div>
-                    <p>Spoofs source port to appear as legitimate traffic (DNS, HTTP, etc.).</p>
+                    <p><strong>How it works:</strong> Spoofs source port to appear as legitimate traffic (DNS, HTTP, etc.).</p>
 
-                    <h4>Timing and Performance</h4>
+                    <h4>Data Length Manipulation (--data-length)</h4>
                     <div class="command-box">
-                        nmap -T0 [target]  # Paranoid (very slow)<br>
-                        nmap -T1 [target]  # Sneaky<br>
-                        nmap -T2 [target]  # Polite<br>
-                        nmap -T3 [target]  # Normal<br>
-                        nmap -T4 [target]  # Aggressive<br>
-                        nmap -T5 [target]  # Insane
+                        nmap --data-length 100 192.168.1.1
+                    </div>
+                    <p><strong>How it works:</strong> Appends random data to packets to evade simple signature detection.</p>
+
+                    <h4>Timing and Performance Optimization (-T)</h4>
+                    <div class="command-box">
+                        nmap -T0 192.168.1.1  # Paranoid (very slow)<br>
+                        nmap -T1 192.168.1.1  # Sneaky<br>
+                        nmap -T2 192.168.1.1  # Polite<br>
+                        nmap -T3 192.168.1.1  # Normal<br>
+                        nmap -T4 192.168.1.1  # Aggressive<br>
+                        nmap -T5 192.168.1.1  # Insane
+                    </div>
+
+                    <h4>Advanced Evasion Combinations</h4>
+                    <div class="command-box">
+                        <strong># Comprehensive stealth scan</strong><br>
+                        nmap -sS -f -D RND:5 --data-length 200 -T2 192.168.1.1<br><br>
+
+                        <strong># Firewall-friendly scan</strong><br>
+                        nmap -sT --source-port 80 --max-parallelism 1 -T1 192.168.1.1
                     </div>
 
                     <div class="resource-link">
@@ -705,107 +925,208 @@
                 </div>
             </section>
 
-            <!-- Same-Network Scanning -->
-            <section>
-                <h2>Same-Network Scanning Strategies</h2>
-                <p>When operating within the same network segment, you gain significant advantages for reconnaissance and enumeration.</p>
-
-                <div class="info-card">
-                    <h4>Local Network Advantages</h4>
-                    <ul>
-                        <li>ARP-based host discovery</li>
-                        <li>Reduced firewall restrictions</li>
-                        <li>Faster scan times</li>
-                        <li>Direct access to internal services</li>
-                    </ul>
-                </div>
-
-                <h3>ARP Scan (-PR)</h3>
-                <div class="command-box">
-                    nmap -PR 192.168.1.0/24<br>
-                    nmap -sn 192.168.1.0/24  # Host discovery only
-                </div>
-
-                <h3>Internal Service Enumeration</h3>
-                <div class="command-box">
-                    <strong># Common internal services</strong><br>
-                    nmap -p 22,23,53,80,443,445,3389 [target]<br><br>
-                    
-                    <strong># SMB/CIFS shares</strong><br>
-                    nmap -p 445 --script smb-enum-shares [target]<br><br>
-                    
-                    <strong># RDP services</strong><br>
-                    nmap -p 3389 --script rdp-enum-encryption [target]
-                </div>
-            </section>
-
-            <!-- NSE Scripting -->
+            <!-- NSE Scripting Engine -->
             <section>
                 <h2>Nmap Scripting Engine (NSE)</h2>
-                <p>The NSE transforms Nmap from a simple port scanner into a powerful vulnerability assessment and exploitation tool.</p>
+                <p>The NSE transforms Nmap from a simple port scanner into a powerful vulnerability assessment and exploitation framework.</p>
+
+                <h3>Script Categories</h3>
+                <ul>
+                    <li><strong>safe:</strong> Non-intrusive scripts for reconnaissance</li>
+                    <li><strong>intrusive:</strong> Potentially disruptive scripts</li>
+                    <li><strong>vuln:</strong> Vulnerability detection scripts</li>
+                    <li><strong>exploit:</strong> Attempts to exploit vulnerabilities</li>
+                    <li><strong>auth:</strong> Authentication bypass and brute-force</li>
+                    <li><strong>discovery:</strong> Additional service enumeration</li>
+                </ul>
 
                 <div class="command-box">
-                    <strong># Script categories</strong><br>
-                    nmap --script safe [target]<br>
-                    nmap --script vuln [target]<br>
-                    nmap --script exploit [target]<br>
-                    nmap --script auth [target]<br><br>
-
-                    <strong># Specific scripts</strong><br>
-                    nmap --script http-enum [target]<br>
-                    nmap --script ssl-enum-ciphers [target]<br>
-                    nmap --script smb-vuln-ms17-010 [target]
+                    <strong># Script usage examples</strong><br>
+                    nmap --script safe 192.168.1.1<br>
+                    nmap --script vuln 192.168.1.1<br>
+                    nmap --script "http-*" 192.168.1.1<br>
+                    nmap --script "smb-vuln-*" 192.168.1.1
                 </div>
 
-                <div class="tip">
-                    <strong>🔧 Pro Tip:</strong> Always start with 'safe' scripts during initial reconnaissance and escalate to more intrusive scripts as you gain authorization and understanding of the target environment.
+                <h3>Essential NSE Scripts</h3>
+
+                <h4>Reconnaissance Scripts</h4>
+                <div class="command-box">
+                    <strong># HTTP enumeration</strong><br>
+                    nmap --script http-enum 192.168.1.1<br><br>
+
+                    <strong># SMB share enumeration</strong><br>
+                    nmap --script smb-enum-shares 192.168.1.1<br><br>
+
+                    <strong># SSL/TLS information</strong><br>
+                    nmap --script ssl-enum-ciphers 192.168.1.1
+                </div>
+
+                <h4>Vulnerability Detection</h4>
+                <div class="command-box">
+                    <strong># Common vulnerabilities</strong><br>
+                    nmap --script vuln 192.168.1.1<br><br>
+
+                    <strong># Specific service vulnerabilities</strong><br>
+                    nmap --script smb-vuln-ms17-010 192.168.1.1<br>
+                    nmap --script http-vuln-cve2017-5638 192.168.1.1
+                </div>
+
+                <h4>Exploitation Scripts</h4>
+                <div class="command-box">
+                    <strong># Brute force attacks</strong><br>
+                    nmap --script http-brute 192.168.1.1<br>
+                    nmap --script ssh-brute 192.168.1.1<br><br>
+
+                    <strong># Service exploitation</strong><br>
+                    nmap --script ftp-anon 192.168.1.1<br>
+                    nmap --script smb-brute 192.168.1.1
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Responsible Usage:</strong> Always ensure you have proper authorization before running intrusive or exploitation scripts. These can disrupt services and trigger security alerts.
                 </div>
 
                 <div class="resource-link">
                     <a href="https://nmap.org/book/nse.html" target="_blank">📚 NSE Official Documentation</a>
                 </div>
+                <div class="resource-link">
+                    <a href="https://nmap.org/nsedoc/" target="_blank">📚 NSE Script Library</a>
+                </div>
             </section>
 
-            <!-- Practical Examples -->
+            <!-- Practical Scenarios -->
             <section>
-                <h2>Practical Scanning Examples</h2>
-                <p>Real-world scanning scenarios for different objectives and environments.</p>
+                <h2>Practical Scanning Scenarios</h2>
+                <p>Real-world examples for different assessment types and environments.</p>
 
+                <h3>Quick Network Discovery</h3>
                 <div class="command-box">
-                    <strong># Quick network discovery</strong><br>
+                    <strong># Find live hosts</strong><br>
                     nmap -sn 192.168.1.0/24<br><br>
 
-                    <strong># Comprehensive scan</strong><br>
-                    nmap -A -T4 [target]<br><br>
+                    <strong># Fast port scan</strong><br>
+                    nmap -F 192.168.1.1<br><br>
 
-                    <strong># Stealthy enumeration</strong><br>
-                    nmap -sS -sV -O -T4 [target]<br><br>
+                    <strong># Top ports scan</strong><br>
+                    nmap --top-ports 100 192.168.1.1
+                </div>
 
-                    <strong># Vulnerability assessment</strong><br>
-                    nmap -sV --script vuln [target]<br><br>
+                <h3>Comprehensive Assessment</h3>
+                <div class="command-box">
+                    <strong># Full enumeration</strong><br>
+                    nmap -A -T4 192.168.1.1<br><br>
 
-                    <strong># Full port scan</strong><br>
-                    nmap -p- -T4 [target]
+                    <strong># Stealthy comprehensive scan</strong><br>
+                    nmap -sS -sV -O -T4 192.168.1.1<br><br>
+
+                    <strong># Full port range</strong><br>
+                    nmap -p- -T4 192.168.1.1
+                </div>
+
+                <h3>Service-Specific Scans</h3>
+                <div class="command-box">
+                    <strong># Web services</strong><br>
+                    nmap -p 80,443,8080,8443 --script http* 192.168.1.1<br><br>
+
+                    <strong># Database services</strong><br>
+                    nmap -p 1433,1521,3306,5432 --script db* 192.168.1.1<br><br>
+
+                    <strong># Windows services</strong><br>
+                    nmap -p 135,139,445 --script smb* 192.168.1.1
+                </div>
+
+                <h3>Advanced Stealth Scans</h3>
+                <div class="command-box">
+                    <strong># Maximum stealth</strong><br>
+                    nmap -sS -f -D RND:10 --data-length 300 -T2 192.168.1.1<br><br>
+
+                    <strong># IDLE scan with zombie</strong><br>
+                    nmap -sI zombie_ip target_ip -Pn
+                </div>
+            </section>
+
+            <!-- Output and Reporting -->
+            <section>
+                <h2>Output Formats and Reporting</h2>
+                <p>Nmap offers multiple output formats for different use cases and reporting requirements.</p>
+
+                <div class="command-box">
+                    <strong># Normal output</strong><br>
+                    nmap -oN scan.txt 192.168.1.1<br><br>
+
+                    <strong># XML output (for tools)</strong><br>
+                    nmap -oX scan.xml 192.168.1.1<br><br>
+
+                    <strong># Grepable output</strong><br>
+                    nmap -oG scan.gnmap 192.168.1.1<br><br>
+
+                    <strong># All formats</strong><br>
+                    nmap -oA scan 192.168.1.1
+                </div>
+
+                <h3>Useful Output Options</h3>
+                <div class="command-box">
+                    <strong># Verbose output</strong><br>
+                    nmap -v 192.168.1.1<br><br>
+
+                    <strong># Increased verbosity</strong><br>
+                    nmap -vv 192.168.1.1<br><br>
+
+                    <strong># Show open ports only</strong><br>
+                    nmap --open 192.168.1.1<br><br>
+
+                    <strong># Reason for port states</strong><br>
+                    nmap --reason 192.168.1.1
+                </div>
+            </section>
+
+            <!-- Performance Tuning -->
+            <section>
+                <h2>Performance Tuning</h2>
+                <p>Optimizing Nmap performance is crucial for large-scale assessments and time-sensitive operations.</p>
+
+                <h3>Timing Templates</h3>
+                <div class="command-box">
+                    <strong># Timing template overview</strong><br>
+                    -T0: Paranoid (5 min between probes)<br>
+                    -T1: Sneaky (15 sec between probes)<br>
+                    -T2: Polite (0.4 sec between probes)<br>
+                    -T3: Normal (default, parallel probes)<br>
+                    -T4: Aggressive (parallel, reduced timeouts)<br>
+                    -T5: Insane (maximum speed, may lose data)
+                </div>
+
+                <h3>Advanced Performance Options</h3>
+                <div class="command-box">
+                    <strong># Custom timing</strong><br>
+                    nmap --min-hostgroup 256 --min-parallelism 10 192.168.1.0/24<br><br>
+
+                    <strong># Rate limiting</strong><br>
+                    nmap --min-rate 100 --max-rate 1000 192.168.1.1<br><br>
+
+                    <strong># Host timeout</strong><br>
+                    nmap --host-timeout 30m 192.168.1.1
                 </div>
             </section>
 
             <!-- Conclusion -->
             <section class="conclusion">
-                <h2>Mastering Nmap: The Ethical Hacker's Journey</h2>
-                <p>Nmap is more than just a port scanner—it's a comprehensive reconnaissance platform that forms the foundation of professional security assessment. From basic network mapping to advanced firewall evasion and vulnerability detection, Nmap provides the tools needed for thorough, professional-grade security testing.</p>
+                <h2>Mastering Nmap: The Professional's Journey</h2>
+                <p>Nmap is much more than a simple port scanner—it's a comprehensive network reconnaissance platform that forms the foundation of professional security assessment. From basic network mapping to advanced firewall evasion and vulnerability detection, Nmap provides the tools needed for thorough, professional-grade security testing.</p>
 
                 <div class="info-card" style="background: rgba(255,255,255,0.05);">
-                    <h4>Key Takeaways for Ethical Hackers:</h4>
+                    <h4>Key Professional Practices:</h4>
                     <ul>
                         <li>Always begin with proper authorization and scope definition</li>
-                        <li>Start with stealthy techniques and escalate as needed</li>
-                        <li>Understand the trade-offs between speed, stealth, and reliability</li>
-                        <li>Use NSE scripts responsibly and understand their impact</li>
-                        <li>Document your findings thoroughly for professional reporting</li>
+                        <li>Start with non-intrusive techniques and escalate gradually</li>
+                        <li>Understand the legal and ethical implications of each scan type</li>
+                        <li>Document your methodology and findings thoroughly</li>
+                        <li>Use appropriate output formats for reporting and analysis</li>
                     </ul>
                 </div>
 
-                <p><strong>Remember:</strong> With great power comes great responsibility. Use these skills to strengthen defenses, conduct authorized testing, and contribute to a more secure digital world.</p>
+                <p><strong>Remember:</strong> The power of Nmap comes with significant responsibility. Use these skills to strengthen defenses, conduct authorized testing, and contribute to a more secure digital ecosystem.</p>
 
                 <div class="resource-link" style="justify-content: center; margin: 2rem auto;">
                     <a href="https://nmap.org/book/" target="_blank">🎯 Continue Learning: Official Nmap Book</a>
@@ -820,4 +1141,9 @@
             <div class="footer-content">
                 <div class="footer-logo">CyberMaks's Knowledge Base</div>
                 <div>© 2024 | Ethical Hacking Resources</div>
-                <div>\
+                <div>For educational and authorized testing purposes only</div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
